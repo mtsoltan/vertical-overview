@@ -1,15 +1,13 @@
-const Gi = imports._gi;
-const Gio = imports.gi.Gio;
+import { Gi } from 'gi://Gi';
+import * as Gio from 'resource:///org/gnome/shell/gi/Gio.js';
 const GioSSS = Gio.SettingsSchemaSource;
-const ExtensionUtils = imports.misc.extensionUtils;
+import * as ExtensionUtils from 'resource:///org/gnome/shell/misc/extensionUtils.js';
 
-const Self = ExtensionUtils.getCurrentExtension();
-
-function hookVfunc(proto, symbol, func) {
+export function hookVfunc(proto, symbol, func) {
     proto[Gi.hook_up_vfunc_symbol](symbol, func);
 }
 
-function overrideProto(proto, overrides) {
+export function overrideProto(proto, overrides) {
     const backup = {};
 
     for (var symbol in overrides) {
@@ -38,7 +36,7 @@ function overrideProto(proto, overrides) {
     return backup;
 }
 
-function bindSetting(label, callback, executeOnBind = true) {
+export function bindSetting(label, callback, executeOnBind = true) {
     let settings = global.vertical_overview.settings;
     if (!settings) {
         settings = global.vertical_overview.settings = {
@@ -60,7 +58,7 @@ function bindSetting(label, callback, executeOnBind = true) {
     return signal;
 }
 
-function unbindSetting(label, callback) {
+export function unbindSetting(label, callback) {
     let settings = global.vertical_overview.settings;
     if (!settings || !settings.signals[label])
         return;

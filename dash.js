@@ -1,15 +1,16 @@
-const { Clutter, GLib, GObject, Graphene, Meta, Shell, St } = imports.gi;
-const AppDisplay = imports.ui.appDisplay;
-const AppFavorites = imports.ui.appFavorites;
-const DND = imports.ui.dnd;
-const IconGrid = imports.ui.iconGrid;
-const Main = imports.ui.main;
-const Overview = imports.ui.overview;
-const Dash = imports.ui.dash;
-const { DashIcon, DashItemContainer, getAppFromSource, DragPlaceholderItem } = imports.ui.dash;
+import Clutter from 'gi://Clutter';
+import St from 'gi://St';
 
-const Self = imports.misc.extensionUtils.getCurrentExtension();
-const Util = Self.imports.util;
+import * as AppDisplay from 'resource:///org/gnome/shell/ui/appDisplay.js';
+import * as AppFavorites from 'resource:///org/gnome/shell/ui/appFavorites.js';
+import * as DND from 'resource:///org/gnome/shell/ui/dnd.js';
+import * as IconGrid from 'resource:///org/gnome/shell/ui/iconGrid.js';
+import * as Main from 'resource:///org/gnome/shell/ui/main.js';
+import * as Overview from 'resource:///org/gnome/shell/ui/overview.js';
+import * as Dash from 'resource:///org/gnome/shell/ui/dash.js';
+import { DashIcon, DashItemContainer, getAppFromSource, DragPlaceholderItem } from 'resource:///org/gnome/shell/ui/dash.js';
+
+import * as Util from './util.js';
 
 var DASH_ANIMATION_TIME = 200;
 var DASH_ITEM_LABEL_SHOW_TIME = 150;
@@ -18,7 +19,7 @@ var DASH_ITEM_HOVER_TIMEOUT = 300;
 
 const baseIconSizes = [16, 22, 24, 32, 48, 64];
 
-function override() {
+export function override() {
     Util.bindSetting('override-dash', (settings, label) => {
         if (settings.get_boolean(label)) {
             global.vertical_overview.GSFunctions['Dash'] = Util.overrideProto(Dash.Dash.prototype, DashOverride);
@@ -37,8 +38,7 @@ function override() {
     });
 }
 
-
-function reset(isDisable) {
+export function reset(isDisable) {
     if (global.vertical_overview.dash_override) {
         set_to_horizontal();
         Util.overrideProto(Dash.Dash.prototype, global.vertical_overview.GSFunctions['Dash']);
@@ -154,7 +154,7 @@ function dash_move_labels(settings, label) {
     global.vertical_overview.dash_move_labels = settings.get_boolean(label);
 }
 
-function dash_old_style() {
+export function dash_old_style() {
     let dash = Main.overview._overview._controls.dash;
 
     if (global.vertical_overview.dash_override) {

@@ -3,11 +3,9 @@
     "description" : "Bringing back vertically stacked workspaces",
     "original-author": "rens.althuis@gmail.com",
     "shell-version" : [
-        "42",
-        "43",
-	"44"
+        "45"
     ],
-    "url" : "https://github.com/RensAlthuis/vertical-overview",
-    "uuid" : "vertical-overview@RensAlthuis.github.com",
-    "version" : "10"
+    "url" : "https://github.com/mtsoltan/vertical-overview",
+    "uuid" : "vertical-overview@mtsoltan.github.com",
+    "version" : "11"
 }

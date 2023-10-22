@@ -1,22 +1,24 @@
 // -*- mode: js; js-indent-level: 4; indent-tabs-mode: nil -*-
 /* exported ControlsManager */
 
-const { Clutter, Gio, GObject, Meta, Shell, St } = imports.gi;
+import Clutter from 'gi://Clutter';
+import St from 'gi://St';
 
-const AppDisplay = imports.ui.appDisplay;
-const Dash = imports.ui.dash;
-const Layout = imports.ui.layout;
-const Main = imports.ui.main;
-const Overview = imports.ui.overview;
-const SearchController = imports.ui.searchController;
-const Util = imports.misc.util;
-const WindowManager = imports.ui.windowManager;
-const WorkspaceThumbnail = imports.ui.workspaceThumbnail;
-const WorkspacesView = imports.ui.workspacesView;
-const OverviewControls = imports.ui.overviewControls;
+import * as AppDisplay from 'resource:///org/gnome/shell/ui/appDisplay.js';
+import * as Dash from 'resource:///org/gnome/shell/ui/dash.js';
+import * as Layout from 'resource:///org/gnome/shell/ui/layout.js';
+import * as Main from 'resource:///org/gnome/shell/ui/main.js';
+import * as Overview from 'resource:///org/gnome/shell/ui/overview.js';
+import * as SearchController from 'resource:///org/gnome/shell/ui/searchController.js';
 
-const Self = imports.misc.extensionUtils.getCurrentExtension();
-const _Util = Self.imports.util;
+import * as WindowManager from 'resource:///org/gnome/shell/ui/windowManager.js';
+import * as WorkspaceThumbnail from 'resource:///org/gnome/shell/ui/workspaceThumbnail.js';
+import * as WorkspacesView from 'resource:///org/gnome/shell/ui/workspacesView.js';
+import * as OverviewControls from 'resource:///org/gnome/shell/ui/overviewControls.js';
+
+import * as Util from 'resource:///org/gnome/shell/misc/util.js';
+
+import * as _Util from './util.js';
 
 const SMALL_WORKSPACE_RATIO = 0.15;
 const DASH_MAX_HEIGHT_RATIO = 0.15;
@@ -24,14 +26,13 @@ const DASH_MAX_HEIGHT_RATIO = 0.15;
 const A11Y_SCHEMA = 'org.gnome.desktop.a11y.keyboard';
 
 var SIDE_CONTROLS_ANIMATION_TIME = Overview.ANIMATION_TIME;
-
-var ControlsState = {
+const ControlsState = {
     HIDDEN: 0,
     WINDOW_PICKER: 1,
     APP_GRID: 2,
 };
 
-function override() {
+export function override() {
     global.vertical_overview.GSFunctions['ControlsManagerLayout'] = _Util.overrideProto(OverviewControls.ControlsManagerLayout.prototype, ControlsManagerLayoutOverride);
     global.vertical_overview.GSFunctions['ControlsManager'] = _Util.overrideProto(OverviewControls.ControlsManager.prototype, ControlsManagerOverride);
 
@@ -40,7 +41,7 @@ function override() {
     global.vertical_overview._workspaceDisplayVisibleID = controlsManager._workspacesDisplay.connectObject("notify::visible", controlsManager._workspacesDisplay._updateWorkspacesViews.bind(controlsManager._workspacesDisplay));
 }
 
-function reset() {
+export function reset() {
     _Util.overrideProto(OverviewControls.ControlsManagerLayout.prototype, global.vertical_overview.GSFunctions['ControlsManagerLayout']);
     _Util.overrideProto(OverviewControls.ControlsManager.prototype, global.vertical_overview.GSFunctions['ControlsManager']);
 
@@ -307,9 +308,7 @@ var ControlsManagerOverride = {
             this._stateAdjustment.getStateTransitionParams();
 
         const paramsForState = s => {
-            opacity = 255;
-            scale = 1;
-            return { opacity, scale } ;
+            return { opacity: 255, scale: 1 } ;
         };
 
         const initialParams = paramsForState(initialState);

@@ -1,19 +1,19 @@
+import Clutter from 'gi://Clutter';
+import St from 'gi://St';
 
-const { Clutter, St } = imports.gi;
 const WORKSPACE_MIN_SPACING = 24;
 const WORKSPACE_MAX_SPACING = 1000;
 const WORKSPACE_INACTIVE_SCALE = 0.94;
 const SECONDARY_WORKSPACE_SCALE = 0.70;
 
 
-const OverviewControls = imports.ui.overviewControls;
-const WorkspacesView = imports.ui.workspacesView;
-const Main = imports.ui.main;
+import * as OverviewControls from 'resource:///org/gnome/shell/ui/overviewControls.js';
+import * as WorkspacesView from 'resource:///org/gnome/shell/ui/workspacesView.js';
+import * as Main from 'resource:///org/gnome/shell/ui/main.js';
 
-const Self = imports.misc.extensionUtils.getCurrentExtension();
-const Util = Self.imports.util;
+import * as Util from './util.js';
 
-function override() {
+export function override() {
     global.vertical_overview.GSFunctions['WorkspacesView'] = Util.overrideProto(WorkspacesView.WorkspacesView.prototype, WorkspacesViewOverride);
     log('You may see an error below,\nSecondaryMonitorDisplay is defined as const for some reason\nSince I\'m overriding values in that const an error show might show up.\n Feel free to ignore it');
     SecondaryMonitorDisplay = WorkspacesView.SecondaryMonitorDisplay;
@@ -26,7 +26,7 @@ function override() {
     }
 }
 
-function reset() {
+export function reset() {
     Util.overrideProto(WorkspacesView.WorkspacesView.prototype, global.vertical_overview.GSFunctions['WorkspacesView']);
     Util.overrideProto(WorkspacesView.SecondaryMonitorDisplay.prototype, global.vertical_overview.GSFunctions['SecondaryMonitorDisplay']);
     if (global.vertical_overview.default_old_style_enabled) {

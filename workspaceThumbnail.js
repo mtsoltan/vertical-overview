@@ -1,13 +1,14 @@
-const { Clutter, Gio, GLib, GObject, Graphene, Meta, Shell, St } = imports.gi;
+import Clutter from 'gi://Clutter';
+import Meta from 'gi://Meta';
+import St from 'gi://St';
 
-const DND = imports.ui.dnd;
-const Main = imports.ui.main;
-const Background = imports.ui.background;
-const Workspace = imports.ui.workspace;
-const WorkspaceThumbnail = imports.ui.workspaceThumbnail;
+import * as DND from 'resource:///org/gnome/shell/ui/dnd.js';
+import * as Main from 'resource:///org/gnome/shell/ui/main.js';
+import * as Background from 'resource:///org/gnome/shell/ui/background.js';
+import * as Workspace from 'resource:///org/gnome/shell/ui/workspace.js';
+import * as WorkspaceThumbnail from 'resource:///org/gnome/shell/ui/workspaceThumbnail.js';
 
-const Self = imports.misc.extensionUtils.getCurrentExtension();
-const Util = Self.imports.util;
+import * as Util from './util.js';
 
 const NUM_WORKSPACES_THRESHOLD = 2;
 
@@ -26,19 +27,19 @@ var WORKSPACE_KEEP_ALIVE_TIME = 100;
 
 var MUTTER_SCHEMA = 'org.gnome.mutter';
 
-function override() {
+export function override() {
     global.vertical_overview.GSFunctions['ThumbnailsBox'] = Util.overrideProto(WorkspaceThumbnail.ThumbnailsBox.prototype, ThumbnailsBoxOverride);
     global.vertical_overview.GSFunctions['WorkspaceThumbnail'] = Util.overrideProto(WorkspaceThumbnail.WorkspaceThumbnail.prototype, WorkspaceThumbnailOverride);
     Main.overview._overview._controls._thumbnailsBox.x_align = Clutter.ActorAlign.FILL;
 }
 
-function reset() {
+export function reset() {
     Util.overrideProto(WorkspaceThumbnail.ThumbnailsBox.prototype, global.vertical_overview.GSFunctions['ThumbnailsBox']);
     Util.overrideProto(WorkspaceThumbnail.WorkspaceThumbnail.prototype, global.vertical_overview.GSFunctions['WorkspaceThumbnail']);
     Main.overview._overview._controls._thumbnailsBox.x_align = Clutter.ActorAlign.CENTER;
 }
 
-function thumbnails_old_style() {
+export function thumbnails_old_style() {
     let thumbnailsBox = Main.overview._overview._controls._thumbnailsBox;
     if (global.vertical_overview.old_style_enabled && global.vertical_overview.default_old_style_enabled) {
         thumbnailsBox.add_style_class_name("vertical-overview");

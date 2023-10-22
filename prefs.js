@@ -1,8 +1,10 @@
+import VerticalWorkspaceExtension from './extension';
+
 const __DEBUG__ = true;
 const { GObject, Gtk } = imports.gi;
-const ExtensionUtils = imports.misc.extensionUtils;
-const Self = ExtensionUtils.getCurrentExtension();
-const Util = Self.imports.util;
+import { ExtensionPreferences, gettext as _ } from 'resource:///org/gnome/Shell/Extensions/js/extensions/prefs.js';
+
+import * as Util from './util.js';
 
 const BuilderScope = GObject.registerClass({
     GTypeName: 'VerticalOverviewBuilderScope',
@@ -42,23 +44,26 @@ const BuilderScope = GObject.registerClass({
 
 function init() { }
 
-function buildPrefsWidget() {
+export default class VerticalWorkspacePreferences extends ExtensionPreferences {
 
-    let builder = new Gtk.Builder();
+    fillPreferencesWindow(window) {
+        let builder = new Gtk.Builder();
 
-    builder.set_scope(new BuilderScope());
-    builder.set_translation_domain('gettext-domain');
-    builder.add_from_file(Self.dir.get_path() + '/settings.ui');
+        builder.set_scope(new BuilderScope());
+        builder.set_translation_domain('gettext-domain');
+        builder.add_from_file(Self.dir.get_path() + '/settings.ui');
 
-    let settings = ExtensionUtils.getSettings('org.gnome.shell.extensions.vertical-overview');
-    for (var key of settings.list_keys()) {
-        let obj = builder.get_object(key);
-        let value = settings.get_value(key);
-        switch (value.get_type_string()) {
-            case "i": obj.set_property('value', value.get_int32()); break;
-            case "b": obj.set_property('active', value.get_boolean()); break;
+        let settings = this.getSettings('org.gnome.shell.extensions.vertical-overview');
+        for (let key of settings.list_keys()) {
+            let obj = builder.get_object(key);
+            let value = settings.get_value(key);
+            switch (value.get_type_string()) {
+                case "i": obj.set_property('value', value.get_int32()); break;
+                case "b": obj.set_property('active', value.get_boolean()); break;
+            }
         }
+
+        window.add(builder.get_object('main_widget'));
     }
 
-    return builder.get_object('main_widget');
 }

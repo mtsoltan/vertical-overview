@@ -1,12 +1,14 @@
-const { Gio, Meta, Shell, Clutter, GObject } = imports.gi;
-const Main = imports.ui.main;
+import Clutter from 'gi://Clutter';
+import Shell from 'gi://Shell';
+import GObject from 'gi://GObject';
 
-const Self = imports.misc.extensionUtils.getCurrentExtension();
-const SwipeTracker = Self.imports.swipeTracker;
+import * as Main from 'resource:///org/gnome/shell/ui/main.js';
+
+import * as SwipeTracker from './swipeTracker.js';
 
 const USE_3_FINGER_SWIPES = false;
 
-function override() {
+export function override() {
     if (USE_3_FINGER_SWIPES) {
         global.vertical_overview.swipeTracker = Main.overview._swipeTracker;
         global.vertical_overview.swipeTracker.enabled = false;
@@ -56,25 +58,25 @@ function override() {
     }
 }
 
-function reset() {
-
+export function reset() {
+    let withProperties = {}
     if (USE_3_FINGER_SWIPES) {
-        var swipeTracker = Main.overview._swipeTracker;
+        withProperties.swipeTracker = Main.overview._swipeTracker;
         Main.overview._swipeTracker = global.vertical_overview.swipeTracker;
         swipeTracker.destroy();
-        delete swipeTracker;
+        delete withProperties.swipeTracker;
         Main.overview._swipeTracker.enabled = true;
     } else {
         let workspacesDisplay = Main.overview._overview._controls._workspacesDisplay;
-        var swipeTracker = workspacesDisplay._swipeTracker;
+        withProperties.swipeTracker = workspacesDisplay._swipeTracker;
         workspacesDisplay._swipeTracker = global.vertical_overview.swipeTracker;
         swipeTracker.destroy();
-        delete swipeTracker;
+        delete withProperties.swipeTracker;
 
         let workspaceAnimation = Main.wm._workspaceAnimation;
-        let animationSwipeTracker = workspaceAnimation._swipeTracker;
+        withProperties.animationSwipeTracker = workspaceAnimation._swipeTracker;
         animationSwipeTracker.destroy();
-        delete animationSwipeTracker;
+        delete withProperties.animationSwipeTracker;
 
         workspaceAnimation._swipeTracker = global.vertical_overview.animationSwipeTracker;
         workspaceAnimation._swipeTracker.enabled = true;

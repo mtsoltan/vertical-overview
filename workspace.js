@@ -1,12 +1,17 @@
-const { Clutter, GLib, GObject, Graphene, Meta, St } = imports.gi;
+import Clutter from 'gi://Clutter';
+import GObject from 'gi://GObject';
+import Graphene from 'gi://Graphene';
+import St from 'gi://St';
 
-const Background = imports.ui.background;
-const DND = imports.ui.dnd;
-const Main = imports.ui.main;
-const OverviewControls = imports.ui.overviewControls;
-const Params = imports.misc.params;
-const Util = imports.misc.util;
-const { WindowPreview } = imports.ui.windowPreview;
+import * as Background from 'resource:///org/gnome/shell/ui/background.js';
+import * as DND from 'resource:///org/gnome/shell/ui/dnd.js';
+import * as Main from 'resource:///org/gnome/shell/ui/main.js';
+import * as OverviewControls from 'resource:///org/gnome/shell/ui/overviewControls.js';
+import * as Params from 'resource:///org/gnome/shell/misc/params.js';
+import * as Util from 'resource:///org/gnome/shell/misc/util.js';
+
+import { WindowPreview } from 'resource:///org/gnome/shell/ui/windowPreview.js';
+
 var WINDOW_PREVIEW_MAXIMUM_SCALE = 0.95;
 var WINDOW_REPOSITIONING_DELAY = 750;
 var LAYOUT_SCALE_WEIGHT = 1;
@@ -14,13 +19,13 @@ var LAYOUT_SPACE_WEIGHT = 0.1;
 const BACKGROUND_CORNER_RADIUS_PIXELS = 30;
 const BACKGROUND_MARGIN = 12;
 
-const Workspace = imports.ui.workspace;
-const Self = imports.misc.extensionUtils.getCurrentExtension();
-const _Util = Self.imports.util;
-const animateAllocation = imports.ui.workspace.animateAllocation;
+import * as Workspace from 'resource:///org/gnome/shell/ui/workspace.js';
+
+import * as _Util from './util.js';
+import * as animateAllocation from 'resource:///org/gnome/shell/ui/workspace/animateAllocation.js';
 
 var staticBackgroundEnabled = false;
-function staticBackgroundOverride() {
+export function staticBackgroundOverride() {
     if (!staticBackgroundEnabled) {
         let set_backgrounds = function() {
             if (global.vertical_overview.bgManagers) {
@@ -53,7 +58,7 @@ function staticBackgroundOverride() {
     }
 }
 
-function staticBackgroundReset() {
+export function staticBackgroundReset() {
     if (staticBackgroundEnabled) {
         Main.layoutManager.disconnectObject(global.vertical_overview.bgMonitorChangedID);
         global.vertical_overview.bgMonitorChangedID = null;
@@ -67,14 +72,14 @@ function staticBackgroundReset() {
 }
 
 var scalingWorkspaceBackgroundEnabled = false;
-function scalingWorkspaceBackgroundOverride() {
+export function scalingWorkspaceBackgroundOverride() {
     if (!scalingWorkspaceBackgroundEnabled) {
         global.vertical_overview.GSFunctions['Workspace'] = _Util.overrideProto(Workspace.Workspace.prototype, WorkspaceOverride);
         scalingWorkspaceBackgroundEnabled = true;
     }
 }
 
-function scalingWorkspaceBackgroundReset() {
+export function scalingWorkspaceBackgroundReset() {
     if (scalingWorkspaceBackgroundEnabled) {
         _Util.overrideProto(Workspace.Workspace.prototype, global.vertical_overview.GSFunctions['Workspace']);
         scalingWorkspaceBackgroundEnabled = false;
@@ -87,11 +92,11 @@ function scalingWorkspaceBackgroundReset() {
     }
 }
 
-function override() {
+export function override() {
     global.vertical_overview.GSFunctions["WorkspaceLayout"] = _Util.overrideProto(Workspace.WorkspaceLayout.prototype, WorkspaceLayoutOverride);
 }
 
-function reset() {
+export function reset() {
     staticBackgroundReset();
     scalingWorkspaceBackgroundReset();
     _Util.overrideProto(Workspace.WorkspaceLayout.prototype, global.vertical_overview.GSFunctions["WorkspaceLayout"]);
