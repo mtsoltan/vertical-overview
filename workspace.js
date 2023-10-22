@@ -22,7 +22,6 @@ const BACKGROUND_MARGIN = 12;
 import * as Workspace from 'resource:///org/gnome/shell/ui/workspace.js';
 
 import * as _Util from './util.js';
-import * as animateAllocation from 'resource:///org/gnome/shell/ui/workspace/animateAllocation.js';
 
 var staticBackgroundEnabled = false;
 export function staticBackgroundOverride() {
@@ -72,12 +71,6 @@ export function staticBackgroundReset() {
 }
 
 var scalingWorkspaceBackgroundEnabled = false;
-export function scalingWorkspaceBackgroundOverride() {
-    if (!scalingWorkspaceBackgroundEnabled) {
-        global.vertical_overview.GSFunctions['Workspace'] = _Util.overrideProto(Workspace.Workspace.prototype, WorkspaceOverride);
-        scalingWorkspaceBackgroundEnabled = true;
-    }
-}
 
 export function scalingWorkspaceBackgroundReset() {
     if (scalingWorkspaceBackgroundEnabled) {
@@ -102,7 +95,7 @@ export function reset() {
     _Util.overrideProto(Workspace.WorkspaceLayout.prototype, global.vertical_overview.GSFunctions["WorkspaceLayout"]);
 }
 
-WorkspaceOverride = {
+const WorkspaceOverride = {
     _init: function (metaWorkspace, monitorIndex, overviewAdjustment) {
         St.Widget.prototype._init.call(this, {
             style_class: 'window-picker',
@@ -179,6 +172,13 @@ WorkspaceOverride = {
         this._delegate = this;
     },
 
+}
+
+export function scalingWorkspaceBackgroundOverride() {
+    if (!scalingWorkspaceBackgroundEnabled) {
+        global.vertical_overview.GSFunctions['Workspace'] = _Util.overrideProto(Workspace.Workspace.prototype, WorkspaceOverride);
+        scalingWorkspaceBackgroundEnabled = true;
+    }
 }
 
 let WorkspaceLayoutOverride = {

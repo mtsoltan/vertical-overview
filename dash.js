@@ -8,7 +8,6 @@ import * as IconGrid from 'resource:///org/gnome/shell/ui/iconGrid.js';
 import * as Main from 'resource:///org/gnome/shell/ui/main.js';
 import * as Overview from 'resource:///org/gnome/shell/ui/overview.js';
 import * as Dash from 'resource:///org/gnome/shell/ui/dash.js';
-import { DashIcon, DashItemContainer, getAppFromSource, DragPlaceholderItem } from 'resource:///org/gnome/shell/ui/dash.js';
 
 import * as Util from './util.js';
 
@@ -19,23 +18,23 @@ var DASH_ITEM_HOVER_TIMEOUT = 300;
 
 const baseIconSizes = [16, 22, 24, 32, 48, 64];
 
-export function override() {
+export function override(getSettings) {
     Util.bindSetting('override-dash', (settings, label) => {
         if (settings.get_boolean(label)) {
             global.vertical_overview.GSFunctions['Dash'] = Util.overrideProto(Dash.Dash.prototype, DashOverride);
             global.vertical_overview.GSFunctions['DashItemContainer'] = Util.overrideProto(Dash.DashItemContainer.prototype, DashItemContainerOverride);
             set_to_vertical();
-            Util.bindSetting('dash-max-height', dash_max_height);
-            Util.bindSetting('hide-dash', hide_dash);
-            Util.bindSetting('show-apps-on-top', show_apps_on_top);
-            Util.bindSetting('dash-max-icon-size', dash_max_icon_size);
-            Util.bindSetting('custom-run-indicator', custom_run_indicator);
-            Util.bindSetting('dash-move-labels', dash_move_labels);
+            Util.bindSetting('dash-max-height', dash_max_height, true, getSettings);
+            Util.bindSetting('hide-dash', hide_dash, true, getSettings);
+            Util.bindSetting('show-apps-on-top', show_apps_on_top, true, getSettings);
+            Util.bindSetting('dash-max-icon-size', dash_max_icon_size, true, getSettings);
+            Util.bindSetting('custom-run-indicator', custom_run_indicator, true, getSettings);
+            Util.bindSetting('dash-move-labels', dash_move_labels, true, getSettings);
             global.vertical_overview.dash_override = true;
         } else {
             reset(false);
         }
-    });
+    }, true, getSettings);
 }
 
 export function reset(isDisable) {
@@ -253,7 +252,7 @@ var DashItemContainerOverride = {
 
 var DashOverride = {
     handleDragOver: function (source, actor, _x, y, _time) {
-        let app = getAppFromSource(source);
+        let app = Dash.Dash.getAppFromSource(source);
 
         // Don't allow favoriting of transient apps
         if (app == null || app.is_window_backed())
@@ -316,7 +315,7 @@ var DashOverride = {
                 fadeIn = true;
             }
 
-            this._dragPlaceholder = new DragPlaceholderItem();
+            this._dragPlaceholder = new Dash.DragPlaceholderItem();
             this._dragPlaceholder.child.set_width(this.iconSize / 2);
             this._dragPlaceholder.child.set_height(this.iconSize);
             this._box.insert_child_at_index(this._dragPlaceholder,
@@ -606,7 +605,7 @@ var DashOverride = {
     },
 
     _createAppItem: function (app) {
-        let appIcon = new DashIcon(app);
+        let appIcon = new Dash.DashIcon(app);
 
         if (this.customRunIndicatorEnabled) {
             let indicator = appIcon._dot;
@@ -619,7 +618,7 @@ var DashOverride = {
                 this._itemMenuStateChanged(item, opened);
             });
 
-        let item = new DashItemContainer();
+        let item = new Dash.DashItemContainer();
         item.setChild(appIcon);
 
         // Override default AppIcon label_actor, now the

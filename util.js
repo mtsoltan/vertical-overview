@@ -1,11 +1,9 @@
-import { Gi } from 'gi://Gi';
-import * as Gio from 'resource:///org/gnome/shell/gi/Gio.js';
+import Gio from 'gi://Gio';
+import {InjectionManager} from 'resource:///org/gnome/shell/extensions/extension.js';
 const GioSSS = Gio.SettingsSchemaSource;
-import * as ExtensionUtils from 'resource:///org/gnome/shell/misc/extensionUtils.js';
 
-export function hookVfunc(proto, symbol, func) {
-    proto[Gi.hook_up_vfunc_symbol](symbol, func);
-}
+
+const _injectionManager = new InjectionManager();
 
 export function overrideProto(proto, overrides) {
     const backup = {};
@@ -25,8 +23,10 @@ export function overrideProto(proto, overrides) {
         }
         else {
             backup[symbol] = proto[symbol];
+            const override = overrides[symbol]
             if (symbol.startsWith('vfunc')) {
-                hookVfunc(proto[Gi.gobject_prototype_symbol], symbol.slice(6), overrides[symbol]);
+                this._injectionManager.overrideMethod(proto, 'vfunc_' + symbol,
+                    (originalAllocate) => override);
             }
             else {
                 proto[symbol] = overrides[symbol];
@@ -36,11 +36,11 @@ export function overrideProto(proto, overrides) {
     return backup;
 }
 
-export function bindSetting(label, callback, executeOnBind = true) {
+export function bindSetting(label, callback, executeOnBind = true, getSettings) {
     let settings = global.vertical_overview.settings;
     if (!settings) {
         settings = global.vertical_overview.settings = {
-            object: ExtensionUtils.getSettings('org.gnome.shell.extensions.vertical-overview'),
+            object: getSettings('org.gnome.shell.extensions.vertical-overview'),
             signals: {},
             callbacks: {}
         };

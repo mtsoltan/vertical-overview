@@ -1,7 +1,8 @@
 import VerticalWorkspaceExtension from './extension';
 
 const __DEBUG__ = true;
-const { GObject, Gtk } = imports.gi;
+import GObject from 'gi://GObject';
+import Gtk from 'gi://Gtk';
 import { ExtensionPreferences, gettext as _ } from 'resource:///org/gnome/Shell/Extensions/js/extensions/prefs.js';
 
 import * as Util from './util.js';

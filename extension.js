@@ -15,34 +15,35 @@ import * as WorkspaceThumbnailOverrides from './workspaceThumbnail.js';
 import * as DashOverride from './dash.js';
 import * as Gestures from './gestures.js';
 import * as WorkspaceOverrides from './workspace.js';
-
+import { Extension, gettext as _ } from 'resource:///org/gnome/shell/extensions/extension.js';
+import * as Util from './util.js';
 
 export default class VerticalWorkspaceExtension extends Extension {
     enable () {
-        if (__DEBUG__) global.log("[VERTICAL-OVERVIEW] starting overrides");
+        if (__DEBUG__) console.log("[VERTICAL-OVERVIEW] starting overrides");
         global.vertical_overview = {};
         global.vertical_overview.GSFunctions = {};
-        bindSettings();
+        this.bindSettings();
 
         OverviewControls.override();
         WorkspacesViewOverrides.override();
         WorkspaceThumbnailOverrides.override();
         WorkspaceOverrides.override();
         Gestures.override();
-        DashOverride.override();
+        DashOverride.override(this.getSettings.bind(this));
 
         //this is the magic function that switches the internal layout to vertical
         global.workspace_manager.override_workspace_layout(Meta.DisplayCorner.TOPLEFT, true, -1, 1);
 
         //rebinding keys is necessary because bound functions don't update if the prototype for that function is changed
-        rebind_keys(Main.overview._overview._controls);
+        this.rebind_keys(Main.overview._overview._controls);
 
 
-        if (__DEBUG__) global.log("[VERTICAL_OVERVIEW] enabled");
+        if (__DEBUG__) console.log("[VERTICAL_OVERVIEW] enabled");
     }
 
     disable () {
-        if (__DEBUG__) global.log("[VERTICAL-OVERVIEW] resetting overrides");
+        if (__DEBUG__) console.log("[VERTICAL-OVERVIEW] resetting overrides");
 
         OverviewControls.reset();
         WorkspacesViewOverrides.reset();
@@ -51,7 +52,7 @@ export default class VerticalWorkspaceExtension extends Extension {
         Gestures.reset();
         DashOverride.reset(true);
 
-        rebind_keys(Main.overview._overview._controls);
+        this.rebind_keys(Main.overview._overview._controls);
 
         global.workspaceManager.override_workspace_layout(Meta.DisplayCorner.TOPLEFT, false, 1, -1);
 
@@ -60,7 +61,7 @@ export default class VerticalWorkspaceExtension extends Extension {
         }
 
         delete global.vertical_overview;
-        if (__DEBUG__) global.log("[VERTICAL-OVERVIEW] disabled");
+        if (__DEBUG__) console.log("[VERTICAL-OVERVIEW] disabled");
     }
 
     bindSettings () {
@@ -69,12 +70,12 @@ export default class VerticalWorkspaceExtension extends Extension {
         Util.bindSetting('left-offset', (settings, label) => {
             const { scaleFactor } = St.ThemeContext.get_for_stage(global.stage);
             controlsManager.layoutManager.leftOffset = settings.get_int(label) * scaleFactor;
-        });
+        }, true, this.getSettings.bind(this));
 
         Util.bindSetting('right-offset', (settings, label) => {
             const { scaleFactor } = St.ThemeContext.get_for_stage(global.stage);
             controlsManager.layoutManager.rightOffset = settings.get_int(label) * scaleFactor;
-        });
+        }, true, this.getSettings.bind(this));
 
         Util.bindSetting('scaling-workspace-background', (settings, label) => {
             global.vertical_overview.scaling_workspaces_hidden = settings.get_boolean(label);
@@ -83,7 +84,7 @@ export default class VerticalWorkspaceExtension extends Extension {
             } else {
                 WorkspaceOverrides.scalingWorkspaceBackgroundReset();
             }
-        });
+        }, true, this.getSettings.bind(this));
 
         Util.bindSetting('static-background', (settings, label) => {
             if (settings.get_boolean(label)) {
@@ -91,27 +92,27 @@ export default class VerticalWorkspaceExtension extends Extension {
             } else {
                 WorkspaceOverrides.staticBackgroundReset();
             }
-        });
+        }, true, this.getSettings.bind(this));
 
         Util.bindSetting('workspace-peek-distance', (settings, label) => {
             global.vertical_overview.workspacePeek = settings.get_int(label);
-        });
+        }, true, this.getSettings.bind(this));
 
         Util.bindSetting('dash-to-panel-left-right-fix', (settings, label) => {
             global.vertical_overview.misc_dTPLeftRightFix = settings.get_boolean(label);
-        });
+        }, true, this.getSettings.bind(this));
 
         Util.bindSetting('default-old-style', (settings, label) => {
             global.vertical_overview.default_old_style_enabled = settings.get_boolean(label);
             DashOverride.dash_old_style();
             WorkspaceThumbnailOverrides.thumbnails_old_style();
-        });
+        }, true, this.getSettings.bind(this));
 
         Util.bindSetting('old-style', (settings, label) => {
             global.vertical_overview.old_style_enabled = settings.get_boolean(label);
             DashOverride.dash_old_style();
             WorkspaceThumbnailOverrides.thumbnails_old_style();
-        });
+        }, true, this.getSettings.bind(this));
 
         Util.bindSetting('panel-in-overview', (settings, label) => {
             if (settings.get_boolean(label)) {
@@ -138,7 +139,7 @@ export default class VerticalWorkspaceExtension extends Extension {
                     global.vertical_overview.panel_signal.disconnected = false;
                 }
             }
-        });
+        }, true, this.getSettings.bind(this));
     }
 
     rebind_keys (self) {
