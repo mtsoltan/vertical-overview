@@ -1,19 +1,17 @@
-import VerticalWorkspaceExtension from './extension';
-
 const __DEBUG__ = true;
 import GObject from 'gi://GObject';
 import Gtk from 'gi://Gtk';
-import { ExtensionPreferences, gettext as _ } from 'resource:///org/gnome/Shell/Extensions/js/extensions/prefs.js';
+import Adw from 'gi://Adw';
+import { ExtensionPreferences } from 'resource:///org/gnome/Shell/Extensions/js/extensions/prefs.js';
 
-import * as Util from './util.js';
+let settings;
 
 const BuilderScope = GObject.registerClass({
     GTypeName: 'VerticalOverviewBuilderScope',
     Implements: [Gtk.BuilderScope],
 }, class BuilderScope extends GObject.Object {
     _init() {
-        super._init()
-        this.settings = ExtensionUtils.getSettings('org.gnome.shell.extensions.vertical-overview');
+        super._init();
     }
 
     vfunc_create_closure(builder, handlerName, flags, connectObject) {
@@ -27,34 +25,32 @@ const BuilderScope = GObject.registerClass({
     }
 
     _onIntValueChanged(value) {
-        let current = this.settings.get_int(value.name);
+        let current = settings.get_int(value.name);
         if (value.value != current) {
             if (__DEBUG__) log('value-changed: ' + value.name + " -> " + value.value);
-            this.settings.set_int(value.name, value.value);
+            settings.set_int(value.name, value.value);
         }
     }
 
     _onBoolValueChanged(value) {
-        let current = this.settings.get_boolean(value.name);
+        let current = settings.get_boolean(value.name);
         if (value.active != current) {
             if (__DEBUG__) log('value-changed: ' + value.name + " -> " + value.active);
-            this.settings.set_boolean(value.name, value.active);
+            settings.set_boolean(value.name, value.active);
         }
     }
 });
 
-function init() { }
-
 export default class VerticalWorkspacePreferences extends ExtensionPreferences {
 
     fillPreferencesWindow(window) {
+        settings = this.getSettings('org.gnome.shell.extensions.vertical-overview');
         let builder = new Gtk.Builder();
 
         builder.set_scope(new BuilderScope());
         builder.set_translation_domain('gettext-domain');
-        builder.add_from_file(Self.dir.get_path() + '/settings.ui');
+        builder.add_from_file(this.path + '/settings.ui');
 
-        let settings = this.getSettings('org.gnome.shell.extensions.vertical-overview');
         for (let key of settings.list_keys()) {
             let obj = builder.get_object(key);
             let value = settings.get_value(key);
@@ -62,9 +58,11 @@ export default class VerticalWorkspacePreferences extends ExtensionPreferences {
                 case "i": obj.set_property('value', value.get_int32()); break;
                 case "b": obj.set_property('active', value.get_boolean()); break;
             }
+
+            // window.add(obj);
         }
 
-        window.add(builder.get_object('main_widget'));
+        window.add(builder.get_object('top_level'));
     }
 
 }

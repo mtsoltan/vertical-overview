@@ -33,19 +33,20 @@ const ControlsState = {
 };
 
 export function override() {
-    global.vertical_overview.GSFunctions['ControlsManagerLayout'] = _Util.overrideProto(OverviewControls.ControlsManagerLayout.prototype, ControlsManagerLayoutOverride);
+    console.log(Object.keys(OverviewControls));
     global.vertical_overview.GSFunctions['ControlsManager'] = _Util.overrideProto(OverviewControls.ControlsManager.prototype, ControlsManagerOverride);
 
     let controlsManager = Main.overview._overview._controls;
+    global.vertical_overview.GSFunctions['ControlsManagerLayout'] = _Util.overrideProto(controlsManager.layout_manager.constructor.prototype, ControlsManagerLayoutOverride);
     global.vertical_overview._updateID = controlsManager._stateAdjustment.connectObject("notify::value", _updateWorkspacesDisplay.bind(controlsManager));
     global.vertical_overview._workspaceDisplayVisibleID = controlsManager._workspacesDisplay.connectObject("notify::visible", controlsManager._workspacesDisplay._updateWorkspacesViews.bind(controlsManager._workspacesDisplay));
 }
 
 export function reset() {
-    _Util.overrideProto(OverviewControls.ControlsManagerLayout.prototype, global.vertical_overview.GSFunctions['ControlsManagerLayout']);
     _Util.overrideProto(OverviewControls.ControlsManager.prototype, global.vertical_overview.GSFunctions['ControlsManager']);
 
     let controlsManager = Main.overview._overview._controls;
+    _Util.overrideProto(controlsManager.layout_manager.constructor.prototype, global.vertical_overview.GSFunctions['ControlsManagerLayout']);
     controlsManager._stateAdjustment.disconnectObject(global.vertical_overview._updateID);
     controlsManager._workspacesDisplay.disconnectObject(global.vertical_overview._workspaceDisplayVisibleID);
     controlsManager._workspacesDisplay.reactive = true;
@@ -163,7 +164,7 @@ var ControlsManagerLayoutOverride = {
         switch (state) {
         case ControlsState.HIDDEN:
         case ControlsState.WINDOW_PICKER:
-            appDisplayBox.set_origin(startX, workAreaBox.y2);
+            appDisplayBox.set_origin(startX, startY);
             break;
         case ControlsState.APP_GRID:
             appDisplayBox.set_origin(startX,

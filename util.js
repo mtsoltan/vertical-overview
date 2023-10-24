@@ -25,7 +25,7 @@ export function overrideProto(proto, overrides) {
             backup[symbol] = proto[symbol];
             const override = overrides[symbol]
             if (symbol.startsWith('vfunc')) {
-                this._injectionManager.overrideMethod(proto, 'vfunc_' + symbol,
+                _injectionManager.overrideMethod(proto, /*'vfunc_' + */symbol,
                     (originalAllocate) => override);
             }
             else {

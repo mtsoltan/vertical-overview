@@ -1,4 +1,19 @@
 <interface>
+
+  <object class="AdwPreferencesPage" id="top_level">
+    <property name="title">Position</property>
+    <property name="icon_name">find-location-symbolic</property>
+
+      <!-- group panel -->
+      <child>
+        <object class="AdwPreferencesGroup" id="position_group_panel">
+          <property name="title" translatable="yes">Panel</property>
+
+          <child>
+            <object class="AdwActionRow">
+              <property name="title" translatable="yes">Display the main panel on</property>
+              <child>
+
     <object class="GtkAdjustment" id="left-offset-adjustment">
         <property name="lower">50</property>
         <property name="upper">99999</property>
@@ -677,4 +692,11 @@
             </object>
         </child>
     </object>
+
+
+              </child>
+            </object>
+          </child>
+</object></child></object>
+
 </interface>
